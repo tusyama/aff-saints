@@ -1,0 +1,35 @@
+{
+  "name": "@desk/api",
+  "private": true,
+  "scripts": {
+    "dev": "bun scripts/dev.ts",
+    "build": "nest build",
+    "start": "bun dist/main.js",
+    "test": "bun test src",
+    "test:scenarios": "bun run build && bun test ./scenarios/scenarios.test.ts --timeout 60000"
+  },
+  "prisma": {
+    "seed": "bun prisma/seed.ts"
+  },
+  "dependencies": {
+    "@nestjs/common": "^12.4.2",
+    "@nestjs/core": "^12.4.2",
+    "@nestjs/jwt": "^12.0.4",
+    "@nestjs/platform-express": "^12.4.2",
+    "@prisma/client": "6",
+    "bcryptjs": "^3.0.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^12.0.12",
+    "@nestjs/schematics": "^12.0.13",
+    "@types/bcryptjs": "^3.0.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "prisma": "6",
+    "typescript": "5.9.3"
+  }
+}

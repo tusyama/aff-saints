@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  BUYER
+  CREATIVE
+  MANAGER
+}
+
+enum TaskStatus {
+  NEW
+  IN_PROGRESS
+  IN_REVIEW
+  REVISIONS
+  DONE
+}
+
+enum CreativeType {
+  STATIC
+  VIDEO
+  MOTION
+  UGC
+  LANDING
+  OTHER
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ActivityType {
+  CREATED
+  CLAIMED
+  SUBMITTED
+  CHANGES_REQUESTED
+  ACCEPTED
+  AI_USAGE_ADDED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+
+  authoredTasks Task[]       @relation("TaskAuthor")
+  assignedTasks Task[]       @relation("TaskAssignee")
+  submissions   Submission[]
+  aiUsages      AiUsage[]
+  activities    Activity[]
+}
+
+model Task {
+  id            String       @id @default(cuid())
+  offer         String
+  geo           String
+  creativeType  CreativeType
+  quantity      Int
+  description   String
+  referenceUrls String[]
+  priority      Priority
+  deadline      DateTime
+  status        TaskStatus   @default(NEW)
+  authorId      String
+  assigneeId    String?
+  createdAt     DateTime     @default(now())
+  takenAt       DateTime?
+  completedAt   DateTime?
+
+  author      User         @relation("TaskAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  assignee    User?        @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: Restrict)
+  submissions Submission[]
+  aiUsages    AiUsage[]
+  activities  Activity[]
+
+  @@index([status])
+  @@index([authorId])
+  @@index([assigneeId])
+  @@index([deadline])
+}
+
+model Submission {
+  id        String   @id @default(cuid())
+  taskId    String
+  authorId  String
+  urls      String[]
+  comment   String?
+  createdAt DateTime @default(now())
+
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Restrict)
+  author User @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([taskId])
+}
+
+model AiService {
+  id     String    @id @default(cuid())
+  name   String    @unique
+  usages AiUsage[]
+}
+
+model AiUsage {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  serviceId String
+  credits   Int
+  note      String?
+  createdAt DateTime @default(now())
+
+  task    Task      @relation(fields: [taskId], references: [id], onDelete: Restrict)
+  user    User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  service AiService @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  @@index([taskId])
+  @@index([userId])
+  @@index([serviceId])
+}
+
+model Activity {
+  id         String        @id @default(cuid())
+  taskId     String
+  actorId    String
+  type       ActivityType
+  fromStatus TaskStatus?
+  toStatus   TaskStatus?
+  message    String?
+  createdAt  DateTime      @default(now())
+
+  task  Task @relation(fields: [taskId], references: [id], onDelete: Restrict)
+  actor User @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([taskId, createdAt])
+}
