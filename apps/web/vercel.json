@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://creative-desk-api.onrender.com/api/:path*"
+    }
+  ]
+}
