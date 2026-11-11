@@ -416,7 +416,7 @@ async function main(): Promise<void> {
         })
       }
     }
-  })
+  }, { maxWait: 20_000, timeout: 120_000 })
 }
 
 function idOf(users: Map<Person, { id: string }>, person: Person): string {
